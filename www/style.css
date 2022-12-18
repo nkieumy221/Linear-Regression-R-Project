@@ -1,0 +1,21 @@
+.content {
+  padding: 15px 0;
+  width: 100%;
+}
+
+.boxHandleData {
+  height: 500px;
+  align-items: center;
+  overflow-x: auto;
+}
+
+.shiny-input-container-inline {
+  display: flex;
+  align-items: center;
+  margin-top: 4px;
+}
+
+
+.shiny-text-output {
+  display: inline-block;
+}
