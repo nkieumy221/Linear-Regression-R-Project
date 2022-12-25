@@ -558,14 +558,14 @@ server <- function(input, output, session) {
   ###### end of code for go next and previous
   
   ## visualize
-
-  carsales_subset <- reactive({
-                          vmy$mydata %>% arrange(desc(price)) %>%  slice(1:60) 
-                          })
                           
   output$plotPrice <- renderPlot({
+    data <- vmy$mydata %>% 
+            group_by(CarName) %>% 
+            summarize(CNT = n()) %>% 
+            arrange(desc(CNT))
 
-    ggplot(data=carsales_subset(),aes(x = CarName, y = price, group = CarName, color = CarName, fill=CarName)) +
+    ggplot(data=data,aes(x = CarName, y = CNT, group = CarName, color = CarName, fill=CarName)) +
       geom_bar(stat = "identity")+
       theme(legend.position="none") +
       scale_x_discrete(guide = guide_axis(angle = 90))
@@ -589,6 +589,16 @@ server <- function(input, output, session) {
 
   })
 
+   output$plotBarFuelGas <- renderPlot({
+
+    data <- vmy$mydata %>% 
+            group_by(fueltype) %>% 
+            summarize(Mean = mean(price, na.rm=TRUE))
+    ggplot(data=data,aes(x = fueltype, y = Mean))+ 
+      geom_bar(stat = "identity",fill="deepskyblue3")
+
+  })
+
   output$plotAspiration <- renderPlot({
 
     data <- vmy$mydata %>% 
@@ -603,6 +613,16 @@ server <- function(input, output, session) {
       coord_polar("y", start=0)+
       theme_void()+
       geom_text(aes(x=1, y = cumsum(per) - per/2, label=label))
+
+  })
+
+  output$plotBarAspiration <- renderPlot({
+
+    data <- vmy$mydata %>% 
+            group_by(aspiration) %>% 
+            summarize(Mean = mean(price, na.rm=TRUE))
+    ggplot(data=data,aes(x = aspiration, y = Mean))+ 
+      geom_bar(stat = "identity",fill="deepskyblue3")
 
   })
 
@@ -623,6 +643,16 @@ server <- function(input, output, session) {
 
   })
 
+  output$plotBarDoornumber <- renderPlot({
+
+    data <- vmy$mydata %>% 
+            group_by(doornumber) %>% 
+            summarize(Mean = mean(price, na.rm=TRUE))
+    ggplot(data=data,aes(x = doornumber, y = Mean))+ 
+      geom_bar(stat = "identity",fill="deepskyblue3")
+
+  })
+
   output$plotDriverWheel <- renderPlot({
 
     data <- vmy$mydata %>% 
@@ -637,6 +667,16 @@ server <- function(input, output, session) {
       coord_polar("y", start=0)+
       theme_void()+
       geom_text(aes(x=1, y = cumsum(per) - per/2, label=label))
+
+  })
+
+  output$plotBarDriverWheel <- renderPlot({
+
+    data <- vmy$mydata %>% 
+            group_by(drivewheel) %>% 
+            summarize(Mean = mean(price, na.rm=TRUE))
+    ggplot(data=data,aes(x = drivewheel, y = Mean))+ 
+      geom_bar(stat = "identity",fill="deepskyblue3")
 
   })
   
@@ -1229,11 +1269,59 @@ https://www.statology.org/how-to-interpret-mape/")),
       ui = tags$div(
         id = id,
 
-        box("Price in the Dataset", width = 12, class="plot", plotOutput("plotPrice")),
-        box("Show which more using Fuel Type ", width = 6, class="plot", plotOutput("plotFuelGas")),
-        box("Which is most Aspiration repeats in the Dataset [ car Standard or car Turbo ]", width = 6, class="plot", plotOutput("plotAspiration")),
-        box("Which is most Door Number repeats in the Dataset [2 or 4]", width = 6, class="plot", plotOutput("plotDoornumber")),
+        box(
+          "Price in the Dataset", 
+          width = 12, 
+          class="plot", 
+          plotOutput("plotPrice"), 
+          "The famous or repeats car > Toyota"
+        ),
+        box(
+          "Show which more using Fuel Type ", 
+          width = 6, 
+          class="plot", 
+          plotOutput("plotFuelGas")
+        ),
+        box(
+          "Show which more using Fuel Type ", 
+          width = 6, 
+          class="plot", 
+          plotOutput("plotBarFuelGas"),
+          "Most using car working in Gas around 90 % and the average price less than the car working in Diesel.
+            Some category using the car working in Diesel around 10 % but the average price more than the car working in Gas."),
+        box(
+          "Which is most Aspiration repeats in the Dataset [ car Standard or car Turbo ]", 
+          width = 6, 
+          class="plot", 
+          plotOutput("plotAspiration")
+          ),
+        box(
+          "Which is most Aspiration repeats in the Dataset [ car Standard or car Turbo ]", 
+          width = 6, 
+          class="plot", 
+          plotOutput("plotBarAspiration"),
+          "Most cars Stander around 82% also the average price less Turbo, the percentage turbo car around 18 %."
+        ),
+        box(
+          "Which is most Door Number repeats in the Dataset [2 or 4]", 
+          width = 6, 
+          class="plot", plotOutput("plotDoornumber")
+          ),
+        box(
+          "Which is most Door Number repeats in the Dataset [2 or 4]", 
+          width = 6, 
+          class="plot", 
+          plotOutput("plotBarDoornumber"),
+          "Around 56 % using car has 4 doors and 46% using car has 2 doors, sports car also the same average price."
+        ),
         box("Which is most Car Drive Wheel repeats in the Dataset ", width = 6, class="plot", plotOutput("plotDriverWheel")),
+        box(
+          "Which is most Car Drive Wheel repeats in the Dataset ", 
+          width = 6, 
+          class="plot", 
+          plotOutput("plotBarDriverWheel"),
+          "Most people using type [Drive Wheel ]> fwd , I thing because less price"
+        ),
       
       )
     )
