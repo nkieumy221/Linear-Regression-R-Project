@@ -807,10 +807,6 @@ https://www.statology.org/how-to-interpret-mape/")),
         # return a safeError if a parsing error occurs
         stop(safeError(e))})
     }
-    #### file import code End
-    
-    vmy$mydata  <- dplyr::select_if(vmy$mydata,is.numeric)
-    vmy$mydata  <- cbind(vmy$mydata, dplyr::select_if(vmy$mydata,is.factor))
     
     #### create datatype df to use in cleansing phase
     fncreatedftype()
@@ -913,8 +909,8 @@ https://www.statology.org/how-to-interpret-mape/")),
                   selection = list(mode = "single", selected = c(1), target = 'row'),
                   fillContainer = getOption("DT.fillContainer", TRUE),
                   options = list(scrollY = '325px',   #where you got scrollY parameter: https://stackoverflow.com/questions/38832890/datatable-to-resize-with-window-in-shiny   ## some more parameters: https://datatables.net/reference/option/
-                                 lengthMenu = c(5, 30, 50), 
-                                 pageLength = 5,
+                                 lengthMenu = c(10, 30, 50), 
+                                 pageLength = 10,
                                  initComplete = htmlwidgets::JS(
                                    "function(settings, json) {",
                                    paste0("$(this.api().table().container()).css({'font-size': '", "12px", "'});"),
@@ -1225,6 +1221,9 @@ https://www.statology.org/how-to-interpret-mape/")),
   
   
   observeEvent(input$mPickerDepenVarBtn, {
+    #### file import code End 
+    vmy$mydata  <- dplyr::select_if(vmy$mydata,is.numeric) 
+    vmy$mydata  <- cbind(vmy$mydata, dplyr::select_if(vmy$mydata,is.factor))
     if (length(input$mPickerDepenVar)==0){
       alert("variables not selected please check...!")
       return()
