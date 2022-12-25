@@ -98,10 +98,6 @@ sidebar <- dashboardSidebar(
   useShinyjs(),
   
   sidebarMenu(id = "tabs",
-              menuItem('Overview',
-                       tabName = 'tab_Overview'),
-              menuItem('Model Evaluation',
-                       tabName = 'tab_Evaluation'),
               menuItem('Data Processing',
                        tabName = 'tab_Dataprocessing'),
               menuItem('Normal Distribution Test',
@@ -118,57 +114,6 @@ body <- dashboardBody(
   tags$link(rel = "stylesheet", type = "text/css", href = "style.css"),
   shinyjs::useShinyjs(),
   tabItems(
-    tabItem(
-      tabName = "tab_Overview",
-      # br(),
-      column(
-        width = 12,
-        align='center',
-        tags$head(
-          tags$style(
-            paste0("#mybox455{color:black; font-size:10px; font-style:bold;overflow:auto;text-align: justify;margin: 5px 5px 5px 5px;
-                                            width: '100%';height: 475px;max-height: 475px; background: #ffffff;}")
-          )
-        ),
-        tags$head(
-          tags$style(
-            paste0("#mybox456{color:black; font-size:10px; font-style:bold;overflow:auto;text-align: justify;margin: 5px 5px 5px 5px; 
-                                            width: '100%';height: 475px;max-height: 475px; background: #ffffff;}")
-          )
-        ),
-        box(
-          width = 6,
-          uiOutput("mybox455")
-        ),
-        box(
-          width = 6,
-          uiOutput("mybox456")
-        )
-      )#column closure
-    ),#tabitem closure
-    tabItem(
-      tabName = "tab_Evaluation",
-      column(
-        width = 12,
-        align='center',
-        tags$head(
-          tags$style(
-            paste0("#mybox457{color:black; font-size:10px; font-style:bold;overflow:auto;text-align: justify; margin: 5px 5px 5px 5px;
-                                            width: '100%';height: 450px;max-height: 450px; background: #ffffff;}")
-          )
-        ),
-        tags$head(
-          tags$style(
-            paste0("#mybox458{color:black; font-size:10px; font-style:bold;overflow:auto;text-align: justify;margin: 5px 5px 5px 5px;
-                                            width: '100%';height: 450px;max-height: 450px; background: #ffffff;}")
-          )
-        ),
-        box(
-          width = 12,
-          uiOutput("mybox458")
-        )
-      )#column closure
-    ),#tabitem closure
     
     tabItem(
       tabName = "tab_Dataprocessing",
@@ -375,35 +320,6 @@ body <- dashboardBody(
                     )#column closure
                   ),#Tabpanel closure
                   tabPanel(
-                    "Statistical Tests",
-                    br(),
-                    column(
-                      width = 12,
-                      offset = 0,
-                      align = "left",
-                      fluidRow(
-                        tags$head(
-                          tags$style(
-                            paste0("#mnormstatisticsTbl{color:black; font-size:14px; font-style:bold;overflow:auto;text-align: justify; margin: 5px 5px 5px 5px;
-                                            width: '100%';height: 375px;max-height: 375px; background: #ffffff;}")
-                          )
-                        ),
-                        box(
-                          width = 9,
-                          HTML(paste('<h5><b><CENTER>',"Test-Normality with Statistical Tests",'</CENTER></b>')),
-                          align ='center',
-                          DT::dataTableOutput("mnormstatisticsTbl"),
-                          HTML(paste('<h6><b>','Shapiro-Wilk and Shapiro-Francia will not be processing if the dataset has more than 5000 rows / observations','</b><h5>'))
-                        ),
-                        box(
-                          width = 3,
-                          uiOutput(outputId = "mflashcardUI"),
-                        )#box closure
-                        
-                      ) #fluid Row Closure
-                    )#column closure
-                  ),#Tabpanel closure
-                  tabPanel(
                     "Measures of Influence",
                     column(
                       width = 12,
@@ -444,15 +360,8 @@ body <- dashboardBody(
                       status = "warning",
                       solidHeader = TRUE,
                       collapsible = FALSE,
-                      HTML(paste('<h5><b><CENTER>',actionLink(inputId = 'mAllInOneLink',label = 'Click Me!'),'</CENTER></b>')),
-                      tags$br(),
                       HTML(paste('<h5><b>',"Choose a Model",'</b>')),
-                      uiOutput(outputId = 'mALLInOneID'),
-                      tags$br(),
-                      HTML(paste('<h6><b><CENTER>',"ggfortify package Reference:",urlRegn9,'</CENTER></b><h6>')),
-                      tags$br(),
-                      HTML(paste('<h6><b>',"Explanation for Diagnostic Plots",'</b>')),
-                      HTML(paste('<h6><b><CENTER>',urlRegn10,'</CENTER></b><h6>'))
+                      uiOutput(outputId = 'mALLInOneID')
                     ),
                     column(
                       width = 10,
@@ -521,10 +430,10 @@ server <- function(input, output, session) {
   #################################################
   global <- reactiveValues(tab_id = "")
   
-  tab_id <- c( 'tab_Overview','tab_Evaluation','tab_Dataprocessing','tab_TestAssumption')
+  tab_id <- c('tab_Dataprocessing','tab_TestAssumption')
   
   Current <- reactiveValues(
-    Tab = "tab_Overview"
+    Tab = "tab_Dataprocessing"
   )
   
   
@@ -690,122 +599,6 @@ server <- function(input, output, session) {
     )
     inserted <<- inserted[-length(inserted)]
   }
-  
-  
-  
-  
-  ##########################################################################
-  #Output code for Introduction and Assumptions
-  ##########################################################################
-  
-  output$mybox455 <- renderUI({
-    tags$div(
-      tags$p(
-        useShinyjs(),
-        HTML(paste('<h5><b><CENTER>',"Intro-Linear Regression",'</CENTER></b>')),
-        HTML(paste('<h6><b><CENTER>',"Reference:",urlRegn1,'</CENTER></b><h6>')),
-        HTML(paste('<h6><b>',"Overview:",'</b><h6>',
-                   "Linear regression is one of the most popular Machine Learning algorithms, based on supervised learning;",
-                   "It is used to study the linear relationship between a dependent variable Y, which should be continuous (eg blood pressure) and",
-                   "one or more independent variables or predictors X,which can be be either continuous (eg age) or binary (eg sex) or categorical(eg social status)",
-                   "Linear Regression is used in Predictive Analysis, for example, a company could predic its revenue based on ",
-                   "the budget allocation for marketing functions by utilizing its sales and expenditure data")),
-        HTML(paste('<h6><b>',"Types of Linear Regression:",'</b><h6>',
-                   "Simple Linear Regression: If a single independent variable is used to predict the value of a numerical dependent variable, then such a Linear Regression algorithm is called Simple Linear Regression.",'\n',
-                   "Multiple Linear regression: If more than one independent variable is used to predict the value of a numerical dependent variable, then such a Linear Regression algorithm is called Multiple Linear Regression.")),
-        HTML(paste('<h6><b>',"Linear Regression Line:",'</b><h6>',
-                   "A linear line showing the relationship between the dependent and independent variables is called a regression line.",'\n',
-                   "Positive Linear Relationship:If the dependent variable increases on the Y-axis and independent variable increases on X-axis, then such a relationship is termed as a Positive linear relationship.",'\n',
-                   "Negative Linear Relationship:If the dependent variable decreases on the Y-axis and independent variable increases on the X-axis, then such a relationship is called a negative linear relationship.")),
-        HTML(paste('<h6><b>',"Finding the best fit line:",'</b><h6>',
-                   "When working with linear regression, our main goal is to find the best fit line that means the error between predicted values and actual values should be minimized. The best fit line will have the least error."))
-        
-      )
-    )
-  })
-  
-  
-  output$mybox456 <- renderUI({
-    tags$div(
-      tags$p(
-        useShinyjs(),
-        HTML(paste('<h5><b><CENTER>',"Assumptions of Linear Regression",'</CENTER></b>')),
-        HTML(paste('<h6><b><CENTER>',"Reference:",urlRegn2,'</CENTER></b><h6>')),
-        # HTML(paste('<h6>',"Before we conduct linear regression analysis, we must first make sure that these assumptions are met")),
-        HTML(paste('<h6><b><u><CENTER>',"Individual Variables Diagnostics",'</CENTER></u></b><h6>')),
-        HTML(paste('<h6><b>',"1. Linear relationship:",'</b><h6>',
-                   "One of the most important assumptions is that a linear relationship is said to exist between the dependent and the independent variables.")),
-        HTML(paste('<h6><b>',"2. No Multicollinearity:",'</b><h6>',
-                   "Multicollinearity is a statistical concept where independent variables in a model are correlated or closely related. If multicollinearity exists, it is challenging to predict the outcome of the model and difficult to explain the relationship between dependent and independent variables, hence there should be no multicollinearity.")),
-        HTML(paste('<h6><b><u><CENTER>',"Residual Diagnostics",'</CENTER></u></b><h6>')),
-        HTML(paste('<h6><b>',"3. Independence:",'</b><h6>',
-                   "The residuals (error terms) are independent of each other and should not have autocorrelation.", 
-                   "This is applicable especially for time series data. When the residuals are autocorrelated, it means that", 
-                   "the current value is dependent of the previous (historic) values The residuals (error terms) are independent of each other. ")),
-        HTML(paste('<h6><b>',"4. Homoscedasticity:",'</b><h6>',
-                   "It means the residuals have constant variance at every level of x. The absence of this phenomenon is known as heteroscedasticity. Heteroscedasticity generally arises in the presence of outliers and extreme values. ")),
-        HTML(paste('<h6><b>',"5. Normality:",'</b><h6>',
-                   "The residuals of the model are normally distributed. Residual is the difference between an observed (actual) value of the dependent variable and the value of the dependent variable predicted from the regression line.")),
-        
-        
-        
-      )
-    )
-  })
-  
-  ##########################################################################
-  #Output code for Evaluation Criteria
-  ##########################################################################
-  output$mybox457 <- renderUI({
-    n<-ncol(vmy$eval_criteriaTbl)
-    
-    HTML( kbl(vmy$eval_criteriaTbl, escape = FALSE,align=c(rep('c',times=n)),   #align center all columns including header in table align=c(rep('c',times=n)) https://stackoverflow.com/questions/41365502/aligning-columns-with-knitr-kable-function
-              caption =paste('<h5><STRONG><CENTER>',"Evaluation-Stat & Criteria",'</CENTER></STRONG><h6>',
-                             '<STRONG><CENTER>',"Reference:",urlRegn3,'</CENTER></STRONG><h5>'),
-              linesep = "\\addlinespace",
-              table.attr = 'class="table" style="color: red font-style: bold; font-family:Cambria; font size="5"; border= "1"; rules= "all";"')%>%
-            kable_paper(lightable_options ="striped", full_width = FALSE)%>%
-            row_spec(0:0, angle = 360,bold=FALSE, color = "red",background = '#ffffcd',font_size = 16, underline=TRUE)%>%  #for formatting table header
-            row_spec(1:nrow(vmy$eval_criteriaTbl), angle = 360,bold=FALSE, color = "black",background = '#ffffff',font_size = 14)%>%  #for formatting table header
-            column_spec((1:n), bold = FALSE,width = "2.5in",color='black')
-    )
-  })
-  
-  
-  output$mybox458 <- renderUI({
-    tags$div(
-      tags$p(
-        useShinyjs(),
-        HTML(paste('<h5><b><CENTER>',"Evaluation of Linear Regression model",'</CENTER></b>')),
-        HTML(paste('<h6><b><CENTER>',"Reference:",urlRegn4,'</CENTER></b><h6>')),
-        HTML(paste('<h6><b>',"1. R-squared:",'</b><h6>',
-                   "It indicates the proportion of the variation in your dependent variable explained by all of your independent variables in the model,collectively.")),
-        HTML(paste('<h6><b>',"2. Adjusted R-squared:",'</b><h6>',
-                   "It measures the proportion of variation in your dependent variable explained by only those independent variables that really affect the dependent variable.")),
-        HTML(paste('<h6><b>',"3. F-Statistic:",'</b><h6>',
-                   "The F-Test of overall significance in regression is a test of whether or not your linear regression model provides a better fit to a dataset than a model with no predictor variables.   here Null Hypothesis is The model with no predictor variables (also known as an intercept-only model) fits the data as well as your regression model.  If the p-value is less than the significance level you've chosen (common choices are .01, .05, and .10), then you have sufficient evidence to conclude that your regression model fits the data better than the intercept-only model.
-https://www.statology.org/a-simple-guide-to-understanding-the-f-test-of-overall-significance-in-regression/")),
-        HTML(paste('<h6><b>',"4. Std. Error :",'</b><h6>',
-                   "Std. Error represents the average distance that the observed values fall from the regression line. Smaller values are better because it indicates that the observations are closer to the fitted line. https://www.statology.org/standard-error-regression/")),
-        HTML(paste('<h6><b>',"5. t-statistic:",'</b><h6>',
-                   "In linear regression, the t-statistic is useful for making inferences about the regression coefficients.If the p-value that corresponds to t is less than some threshold (.05) then we reject the null hypothesis and conclude that there is a statistically significant relationship between the predictor variable and the response variable. https://www.statology.org/t-test-linear-regression/")),
-        HTML(paste('<h6><b>',"6. AIC and BIC:",'</b><h6>',
-                   "AIC and BIC are widely used as model selection criteria. AIC means Akaike's Information Criteria and BIC means Bayesian Information Criteria.",
-                   "As likelihood increases, BIC decreases. So, lower BIC is better. Similarly lower AIC values indicate a better-fit model")),
-        HTML(paste('<h6><b>',"7. Mallows Cp:",'</b><h6>',
-                   "We can identify the 'best' regression model by identifying the model with the lowest Cp value that is close to p+1, where p is the number of predictor variables in the model. https://www.statology.org/how-to-calculate-mallows-cp-in-r/")),
-        HTML(paste('<h6><b>',"8. Mean Absolute Percentage Error(MAPE):",'</b><h6>',
-                   "The mean absolute percentage error ( MAPE ) is a statistical measure of how accurate a forecast system is. It measures this accuracy as a percentage,
-For example, a MAPE value of 10% means that the average difference between the forecasted value and the actual value is 10%.
-https://www.statology.org/how-to-interpret-mape/")),
-        HTML(paste('<h6><b>',"9. Mean Squared Error(MSE)::",'</b><h6>',
-                   "Mean Squared Error is the sum of the square of prediction error. it is used to measure the forecast accuracy of a model.The lower the value for MSE, the better a model is able to forecast values accurately. https://www.statology.org/how-to-calculate-mean-squared-error-mse-in-excel/"))
-        
-      )
-    )
-  })
-  
-  
   
   
   ###################################################################
@@ -997,7 +790,6 @@ https://www.statology.org/how-to-interpret-mape/")),
           collapsible = FALSE,
           actionButton("deleteRows", "Delete Row", style = styleButtonBlue(xcolor = 'pink')),
           actionButton("deleteRowEmpty", "Remove empty rows", style = styleButtonBlue(xcolor = '#FF9632')),
-          actionButton(inputId = 'mbtnEmptyRows',label = "Delete all NA rows",style = styleButtonBlue(xcolor = '#6A6F37')),
           br(),
           radioGroupButtons(
             inputId = "mRadioNABtn",
@@ -1029,6 +821,7 @@ https://www.statology.org/how-to-interpret-mape/")),
   output$mdatatable <- DT::renderDataTable({
     DT::datatable(vmy$mydata,  
                   editable = TRUE,
+                  rownames = FALSE,
                   selection = list(mode = "single", selected = c(1), target = 'row'),
                   fillContainer = getOption("DT.fillContainer", TRUE),
                   options = list(scrollY = '325px',   #where you got scrollY parameter: https://stackoverflow.com/questions/38832890/datatable-to-resize-with-window-in-shiny   ## some more parameters: https://datatables.net/reference/option/
@@ -1054,12 +847,14 @@ https://www.statology.org/how-to-interpret-mape/")),
       
       vmy$mydata <- vmy$mydata[-as.numeric(input$mdatatable_rows_selected),]
     }
+    fncreatedftype()
   })
 
   observeEvent(input$deleteRowEmpty,{
       #### delete NA rows code start
       vmy$mydata <- na.omit(vmy$mydata)
       vmy$mydata <- vmy$mydata[complete.cases(vmy$mydata), ]
+      fncreatedftype()
   })
   observeEvent(input$mCleanseDataBtn,{
     enable("mFixDependentVarBtn")
@@ -1142,6 +937,7 @@ https://www.statology.org/how-to-interpret-mape/")),
   observeEvent(input$mEmptyRowsyes, {
     vmy$mydata <- vmy$mydata[rowSums(is.na(vmy$mydata)) != ncol(vmy$mydata), ]        # Drop empty rows
     
+    fncreatedftype()
     removeModal()
   })
   
@@ -1155,6 +951,7 @@ https://www.statology.org/how-to-interpret-mape/")),
         mreplaceval <- 0
         for (r in (1:nn)){
           vmy$mydata[r,i][is.na(vmy$mydata[r,i])] <- mreplaceval
+
         }
       }
     }else if (input$mRadioNABtn == "MEAN"){
@@ -1179,7 +976,8 @@ https://www.statology.org/how-to-interpret-mape/")),
         }
       }
     }
-    removeModal()
+    fncreatedftype()
+    removeModal() 
     updateRadioGroupButtons(session,inputId = 'mRadioNABtn', selected = character(0))
   })
   
@@ -1233,6 +1031,7 @@ https://www.statology.org/how-to-interpret-mape/")),
     mcheckboxchoices <- names(vmy$mydata)[-dd]
     updatePickerInput(session,inputId = "mPickerIndepVar",choices = mcheckboxchoices ,selected = NULL)
     
+    fncreatedftype()
     removeModal()
     temp2 <- subset(vmy$df_types, Var_name!=vmy$df_types[input$dt_cell_clicked$row,1] )
     vmy$df_types <- temp2
@@ -1270,7 +1069,7 @@ https://www.statology.org/how-to-interpret-mape/")),
         id = id,
 
         box(
-          "Price in the Dataset", 
+          "Number of occurrences of vehicles in the Dataset", 
           width = 12, 
           class="plot", 
           plotOutput("plotPrice"), 
