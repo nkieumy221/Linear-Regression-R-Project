@@ -189,6 +189,8 @@ body <- dashboardBody(
           br(),
           actionButton(inputId = 'mshowtableBtn',label = "Review Dataset!",style = styleButtonBlue(xheight = '35px',xwidth = '162px')),
           br(),
+          actionButton(inputId = 'mVisualizationBtn',label = "Visualization Dataset!",style = styleButtonBlue(xheight = '35px',xwidth = '162px')),
+          br(),
           actionButton(inputId = 'mFixDependentVarBtn',label = "Choose Dependent Variable!",style = styleButtonBlue(xheight = '70px',xwidth = '162px'))
         ),#box closure
         column(
@@ -496,6 +498,7 @@ server <- function(input, output, session) {
   inserted <- c()
   
   disable("mshowtableBtn")
+  disable("mVisualizationBtn")
   disable("mFixDependentVarBtn")
   disable("mCleanseDataBtn")
   disable("mydropdown")
@@ -554,7 +557,88 @@ server <- function(input, output, session) {
   
   ###### end of code for go next and previous
   
-  
+  ## visualize
+
+  carsales_subset <- reactive({
+                          vmy$mydata %>% arrange(desc(price)) %>%  slice(1:60) 
+                          })
+                          
+  output$plotPrice <- renderPlot({
+
+    ggplot(data=carsales_subset(),aes(x = CarName, y = price, group = CarName, color = CarName, fill=CarName)) +
+      geom_bar(stat = "identity")+
+      theme(legend.position="none") +
+      scale_x_discrete(guide = guide_axis(angle = 90))
+
+  })
+
+  output$plotFuelGas <- renderPlot({
+
+    data <- vmy$mydata %>% 
+            group_by(fueltype) %>% 
+            count() %>% 
+            ungroup() %>% 
+            mutate(per=`n`/sum(`n`)) %>% 
+            arrange(desc(fueltype))
+    data$label <- scales::percent(data$per)
+    ggplot(data=data)+
+      geom_bar(aes(x="", y=per, fill=fueltype), stat="identity", width = 1)+
+      coord_polar("y", start=0)+
+      theme_void()+
+      geom_text(aes(x=1, y = cumsum(per) - per/2, label=label))
+
+  })
+
+  output$plotAspiration <- renderPlot({
+
+    data <- vmy$mydata %>% 
+            group_by(aspiration) %>% 
+            count() %>% 
+            ungroup() %>% 
+            mutate(per=`n`/sum(`n`)) %>% 
+            arrange(desc(aspiration))
+    data$label <- scales::percent(data$per)
+    ggplot(data=data)+
+      geom_bar(aes(x="", y=per, fill=aspiration), stat="identity", width = 1)+
+      coord_polar("y", start=0)+
+      theme_void()+
+      geom_text(aes(x=1, y = cumsum(per) - per/2, label=label))
+
+  })
+
+  output$plotDoornumber <- renderPlot({
+
+    data <- vmy$mydata %>% 
+            group_by(doornumber) %>% 
+            count() %>% 
+            ungroup() %>% 
+            mutate(per=`n`/sum(`n`)) %>% 
+            arrange(desc(doornumber))
+    data$label <- scales::percent(data$per)
+    ggplot(data=data)+
+      geom_bar(aes(x="", y=per, fill=doornumber), stat="identity", width = 1)+
+      coord_polar("y", start=0)+
+      theme_void()+
+      geom_text(aes(x=1, y = cumsum(per) - per/2, label=label))
+
+  })
+
+  output$plotDriverWheel <- renderPlot({
+
+    data <- vmy$mydata %>% 
+            group_by(drivewheel) %>% 
+            count() %>% 
+            ungroup() %>% 
+            mutate(per=`n`/sum(`n`)) %>% 
+            arrange(desc(drivewheel))
+    data$label <- scales::percent(data$per)
+    ggplot(data=data)+
+      geom_bar(aes(x="", y=per, fill=drivewheel), stat="identity", width = 1)+
+      coord_polar("y", start=0)+
+      theme_void()+
+      geom_text(aes(x=1, y = cumsum(per) - per/2, label=label))
+
+  })
   
   ##########################################################################
   #Function to remove box or column present on the screen at the placeholder
@@ -778,7 +862,8 @@ https://www.statology.org/how-to-interpret-mape/")),
       return()
     }
     enable("mshowtableBtn")
-    disable("mFixDependentVarBtn")
+    enable("mVisualizationBtn")
+    enable("mFixDependentVarBtn")
     
     #### file import code start
     ext <- tools::file_ext(input$file$name)
@@ -900,8 +985,6 @@ https://www.statology.org/how-to-interpret-mape/")),
     )
     inserted <<- c(id, inserted)
   })
-  
-  
   
   output$mdatatable <- DT::renderDataTable({
     DT::datatable(vmy$mydata,  
@@ -1128,6 +1211,34 @@ https://www.statology.org/how-to-interpret-mape/")),
     }
   })
   
+
+  #####################################################################################
+  # Visualization
+  #####################################################################################
+
+  observeEvent(input$mVisualizationBtn,{
+    removeRightBox()
+    btn <- input$mVisualizationBtn
+    id <- paste0('Visualization', btn)
+    disable("maddmodelYorN")
+    enable("mFixDependentVarBtn")
+    insertUI(
+      selector = '#placeholder_MultiPurpose',
+      where = "beforeBegin",
+      multiple = FALSE,
+      ui = tags$div(
+        id = id,
+
+        box("Price in the Dataset", width = 12, class="plot", plotOutput("plotPrice")),
+        box("Show which more using Fuel Type ", width = 6, class="plot", plotOutput("plotFuelGas")),
+        box("Which is most Aspiration repeats in the Dataset [ car Standard or car Turbo ]", width = 6, class="plot", plotOutput("plotAspiration")),
+        box("Which is most Door Number repeats in the Dataset [2 or 4]", width = 6, class="plot", plotOutput("plotDoornumber")),
+        box("Which is most Car Drive Wheel repeats in the Dataset ", width = 6, class="plot", plotOutput("plotDriverWheel")),
+      
+      )
+    )
+    inserted <<- c(id, inserted)
+  })
   
   
   
@@ -1148,7 +1259,6 @@ https://www.statology.org/how-to-interpret-mape/")),
     
     btn <- input$mFixDependentVarBtn
     id <- paste0('txt', btn)
-    disable("mFixDependentVarBtn")
     insertUI(
       selector = '#placeholder_MultiPurpose',
       where = "beforeBegin",
